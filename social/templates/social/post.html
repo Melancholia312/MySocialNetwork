@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<br>
+<h1>Post by {{ post.user }}</h1>
+<br>
+
+<div class="card">
+  <div class="card-header">
+    {{ post.title }}
+  </div>
+  <div class="card-body">
+    <p class="card-text">{{ post.text }}</p>
+      <p class="card-text"><small class="text-muted">Created at {{ post.create_date }}</small></p>
+      <p class="card-text"><small class="text-muted">Views {{ post.view_count }}</small></p>
+      {% if request.user.id == post.user.id %}
+        <a href="{% url 'post_update' post.id %}"><button type="submit" class="btn btn-primary">Change post</button></a>
+        <a href="{% url 'post_delete' post.id %}"><button type="submit" class="btn btn-primary">Delete post</button></a>
+    {% endif %}
+  </div>
+</div>
+<hr>
+<h1>Comments</h1>
+<hr>
+{% if comments %}
+{% load mptt_tags %}
+<ul>
+    {% recursetree comments %}
+        <li>
+            <p>Comment by <a href="{{ node.user.get_absolute_url }}">{{ node.user }}</a>
+                {% if request.user == node.user %}
+                | <a href="{% url 'comment_delete' node.id %}">delete</a></p>
+                {% endif %}
+            <p>Text {{ node.text }}</p>
+            <form action="{% url 'add_comment' post.id %}" method="post" class="mt-4"
+                          id="formReview">
+                        {% csrf_token %}
+                        <input type="hidden" name="parent" value="{{ node.id }}">
+                        <div class="form-group editContent">
+                            <input name="text" id="commenttext" placeholder="Type your reply...">
+                            <label for="commenttext"></label>
+                        </div>
+
+                        <button type="submit"
+                                class="btn-success">
+                            Answer
+                        </button>
+                    </form>
+            <br>
+            {% if not node.is_leaf_node %}
+                <ul class="children">
+                    {{ children }}
+                </ul>
+            {% endif %}
+        </li>
+    {% endrecursetree %}
+</ul>
+
+{% else %}
+<p>There are no comments here yet</p>
+{% endif %}
+<hr>
+
+<h2>Leave your comment without any reply</h2>
+<form action="{% url 'add_comment' post.id %}" method="post" class="mt-4"
+                          id="formComment">
+                        {% csrf_token %}
+                        <input type="hidden" name="parent" value="">
+                        <div class="form-group editContent">
+                            <input name="text" placeholder="Type your comment....">
+                        </div>
+
+                        <button type="submit"
+                                class="btn-success">
+                            Send comment
+                        </button>
+                    </form>
+
+
+<hr>
+<h3><a href="{{ post.user.get_absolute_url }}">Back to account</a></h3>
+
+{% endblock %}

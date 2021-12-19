@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="card mb-3">
+  <img src="{{ profile.image.url }}" class="card-img-top" alt="...">
+  <div class="card-body">
+    <h1 class="card-title">{{ profile.username }}</h1>
+      {% if profile.first_name or profile.last_name %}
+      <h2 class="card-title">Name: {{ profile.first_name }} {{ profile.last_name }}</h2>
+      {% endif %}
+
+      {% if profile.bio  %}
+    <p class="card-text">Bio: {{ profile.bio }}</p>
+      {% endif %}
+
+      {% if profile.gender  %}
+      <p class="card-text">Gender: {{ profile.gender }}</p>
+      {% endif %}
+
+      {% if profile.phone  %}
+      <p class="card-text">Phone: {{ profile.phone }}</p>
+      {% endif %}
+
+      {% if profile.email  %}
+      <p class="card-text">Email: {{ profile.email }}</p>
+      {% endif %}
+
+      {% if profile.birthday  %}
+    <p class="card-text">Birthday: {{ profile.birthday }}</p>
+      {% endif %}
+
+      {% if profile.last_login  %}
+    <p class="card-text"><small class="text-muted">{{ profile.last_login }}</small></p>
+      {% endif %}
+  </div>
+</div>
+
+    <p>{{ profile.subscribers_count }} подписчиков </p>
+
+{% if request.user.is_authenticated and request.user.id != profile.id %}
+
+<form action="{% url 'follow' profile.id %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit">
+                            Follow
+                        </button>
+</form>
+
+{% endif %}
+
+<hr>
+<h1>Posts</h1>
+{% if request.user.id == profile.id %}
+<a href="{% url 'post_create'%}"><button type="submit" class="btn btn-primary">Create post</button></a>
+{% endif %}
+<hr>
+{% if posts %}
+
+{% for post in posts %}
+<div class="card">
+  <div class="card-header">
+    {{ post.title }}
+  </div>
+  <div class="card-body">
+    <p class="card-text">{{ post.text|linebreaks }}</p>
+      <p class="card-text"><small class="text-muted">Created at {{ post.create_date }}</small></p>
+      <p class="card-text"><small class="text-muted">Views {{ post.view_count }}</small></p>
+      <a href="{{ post.get_absolute_url }}" class="btn btn-primary">View post</a>
+      {% if request.user.id == profile.id %}
+        <a href="{% url 'post_update' post.id %}"><button type="submit" class="btn btn-primary">Change post</button></a>
+        <a href="{% url 'post_delete' post.id %}"><button type="submit" class="btn btn-primary">Delete post</button></a>
+    {% endif %}
+  </div>
+</div>
+{% endfor %}
+
+{% else %}
+<p>There are no posts here yet</p>
+{% endif %}
+
+
+{% endblock content %}

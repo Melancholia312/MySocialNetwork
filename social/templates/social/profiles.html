@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Users List</h1>
+
+    <ul>
+
+      {% for profile in profiles %}
+        <div class="card mb-3" style="max-width: 540px;">
+  <div class="row g-0">
+    <div class="col-md-4">
+      <img src="{{ profile.image.url }}" class="img-fluid rounded-start" alt="...">
+    </div>
+    <div class="col-md-8">
+      <div class="card-body">
+        <a href="{{ profile.get_absolute_url }}">{{ profile.username }}</a>
+        <p class="card-text">{{ profile.bio|slice:":250" }}</p>
+          {% if profile.last_login  %}
+        <p class="card-text"><small class="text-muted">Last login {{ profile.last_login }}</small></p>
+          {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+      {% endfor %}
+
+    </ul>
+
+
+{% endblock %}
